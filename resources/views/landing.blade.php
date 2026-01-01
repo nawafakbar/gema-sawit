@@ -92,7 +92,7 @@
                     Solusi Agronomi & Keamanan IoT
                 </span>
                 
-                <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 mb-6 leading-tight">
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
                     Pantau & Amankan <br> 
                     <span class="text-gradient">Kebun Sawit</span> Anda
                 </h1>
@@ -126,7 +126,7 @@
                 </div>
             </div>
 
-            <div class="relative hidden lg:block pb-20">
+            <div class="relative hidden lg:block pb-22">
                 <div class="relative z-10 rounded-3xl overflow-hidden shadow-2xl border-4 border-white transform rotate-2 hover:rotate-0 transition duration-500">
                     <img src="{{ asset('Images/sawitnih.png') }}" class="w-full h-auto object-cover">
                     <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 text-white">
@@ -185,10 +185,10 @@
 
         <div class="max-w-7xl mx-auto px-6 relative z-10">
             <div class="text-center mb-16">
-                <span class="inline-block py-1 px-4 rounded-full bg-brand-500 text-white font-bold text-xs uppercase tracking-wider mb-4 shadow-lg shadow-brand-500/50">
+                <span class="inline-block py-1 px-4 rounded-full bg-brand-500 text-white font-semibold text-xs uppercase tracking-wider mb-4 shadow-lg shadow-brand-500/50">
                     🚀 Teknologi Andalan
                 </span>
-                <h2 class="text-4xl md:text-5xl font-extrabold mt-2 tracking-tight">
+                <h2 class="text-4xl md:text-4xl font-bold mt-2 tracking-tight">
                     Ninja Sawit IoT System
                 </h2>
                 <p class="text-gray-300 mt-4 max-w-2xl mx-auto leading-relaxed text-lg">
