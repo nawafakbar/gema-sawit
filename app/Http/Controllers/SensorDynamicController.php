@@ -26,7 +26,7 @@ class SensorDynamicController extends Controller
         $sensorId  = $validated['sensor_id'];
 
         // OPSI A: TOLAK DATA RUSAK (Disarankan)
-        if (!str_starts_with($sensorId, 'ESP32')) {
+        if (!str_starts_with($sensorId, 'ESP32_')) {
             return response()->json([
                 'status'  => 'error', 
                 'message' => 'Invalid Sensor ID Format (Corrupted Data)'
@@ -80,7 +80,7 @@ class SensorDynamicController extends Controller
         }
 
         // Kirim notifikasi jika decibel > 40 (tanpa lat/lng/alias)
-        if ($decibel > 70) {
+        if ($decibel > 55) {
             $message = "🚨 Aktivitas mencurigakan!\n"
                     . "Sensor: {$sensorId}\n"
                     . "Decibel: {$decibel}\n"
