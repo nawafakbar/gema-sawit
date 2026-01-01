@@ -26,7 +26,7 @@ class SensorDynamicController extends Controller
         $sensorId  = $validated['sensor_id'];
 
         // OPSI A: TOLAK DATA RUSAK (Disarankan)
-        if (!str_starts_with($sensorIdRaw, 'ESP32')) {
+        if (!str_starts_with($sensorId, 'ESP32')) {
             return response()->json([
                 'status'  => 'error', 
                 'message' => 'Invalid Sensor ID Format (Corrupted Data)'
