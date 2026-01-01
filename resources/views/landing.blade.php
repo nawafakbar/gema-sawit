@@ -118,6 +118,10 @@
                         <p class="text-2xl font-bold text-gray-900">ISPO</p>
                         <p class="text-xs text-gray-500 uppercase tracking-wide">Ready</p>
                     </div>
+                    <div>
+                        <p class="text-2xl font-bold text-gray-900">IoT Guard</p>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide">Security</p>
+                    </div>
                 </div>
             </div>
 
