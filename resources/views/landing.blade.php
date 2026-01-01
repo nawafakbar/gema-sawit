@@ -126,8 +126,8 @@
                 </div>
             </div>
 
-            <div class="relative hidden lg:block pb-5">
-                <div class="relative z-5 rounded-3xl overflow-hidden shadow-2xl border-4 border-white transform rotate-2 hover:rotate-0 transition duration-500">
+            <div class="relative hidden lg:block pb-20">
+                <div class="relative z-10 rounded-3xl overflow-hidden shadow-2xl border-4 border-white transform rotate-2 hover:rotate-0 transition duration-500">
                     <img src="{{ asset('Images/sawitnih.png') }}" class="w-full h-auto object-cover">
                     <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 text-white">
                         <div class="flex items-center gap-2">
@@ -189,7 +189,7 @@
                     🚀 Teknologi Andalan
                 </span>
                 <h2 class="text-4xl md:text-5xl font-extrabold mt-2 tracking-tight">
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-blue-400">Ninja Sawit</span> IoT System
+                    Ninja Sawit IoT System
                 </h2>
                 <p class="text-gray-300 mt-4 max-w-2xl mx-auto leading-relaxed text-lg">
                     Sistem keamanan dan monitoring kebun tercanggih. Mendeteksi suara mencurigakan (maling) dan memantau kondisi lingkungan 24/7 secara realtime.
