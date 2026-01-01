@@ -431,7 +431,7 @@
             let bgIndicator = 'bg-gray-400';
             
             if(db >= thresholds.dbLoud) { borderClass = 'border-red-200 bg-red-50/50'; bgIndicator = 'bg-red-500'; }
-            else if(db >= 50) { borderClass = 'border-orange-200 bg-orange-50/50'; bgIndicator = 'bg-orange-400'; }
+            else if(db >= 55) { borderClass = 'border-orange-200 bg-orange-50/50'; bgIndicator = 'bg-orange-400'; }
             else { borderClass = 'border-green-200 bg-green-50/50'; bgIndicator = 'bg-green-500'; }
 
             const card = document.createElement('div');
