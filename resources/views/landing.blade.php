@@ -6,6 +6,7 @@
     <title>SmartPalm - Revolusi Digital Sawit Rakyat</title>
     <link rel="icon" href="{{ asset('Images/favicon.svg') }}" type="image/svg+xml">
     <link rel="shortcut icon" href="{{ asset('Images/favicon.svg') }}" type="image/svg+xml">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -42,6 +43,7 @@
                 <a href="#masalah" class="text-sm font-medium text-gray-600 hover:text-brand-600 transition">Masalah & Solusi</a>
                 <a href="#fitur" class="text-sm font-medium text-gray-600 hover:text-brand-600 transition">Fitur Unggulan</a>
                 <a href="#ai-demo" class="text-sm font-medium text-gray-600 hover:text-brand-600 transition">Teknologi AI</a>
+                <a href="#iot-monitoring" class="text-sm font-medium text-gray-600 hover:text-brand-600 transition">Monitoring IoT</a>
             </div>
 
             <div class="hidden md:flex items-center gap-3">
@@ -66,6 +68,7 @@
                 <a href="#masalah" class="text-gray-600 font-medium py-2 border-b border-gray-50">Masalah & Solusi</a>
                 <a href="#fitur" class="text-gray-600 font-medium py-2 border-b border-gray-50">Fitur Unggulan</a>
                 <a href="#ai-demo" class="text-gray-600 font-medium py-2 border-b border-gray-50">Teknologi AI</a>
+                <a href="#iot-monitoring" class="text-gray-600 font-medium py-2 border-b border-gray-50">Monitoring IoT</a>
                 @auth
                     <a href="{{ route('dashboard') }}" class="w-full text-center px-5 py-3 bg-brand-600 text-white font-bold rounded-xl">Ke Dashboard</a>
                 @else
@@ -139,6 +142,7 @@
                             <i class="ph-fill ph-warning-circle"></i> Masalah Petani Saat Ini
                         </h3>
                         <ul class="space-y-3 text-gray-700">
+                            <li class="flex items-start gap-2"><i class="ph-bold ph-x text-red-500 mt-1"></i> Marak nya aksi ninja-sawit berdampak terhadap kerugian finansial</li>
                             <li class="flex items-start gap-2"><i class="ph-bold ph-x text-red-500 mt-1"></i> Jadwal pupuk tidak teratur & lupa dosis.</li>
                             <li class="flex items-start gap-2"><i class="ph-bold ph-x text-red-500 mt-1"></i> Sulit mendeteksi penyakit dini pada daun.</li>
                             <li class="flex items-start gap-2"><i class="ph-bold ph-x text-red-500 mt-1"></i> Tidak ada catatan panen untuk evaluasi hasil.</li>
@@ -150,11 +154,11 @@
                     <span class="text-brand-600 font-bold text-sm uppercase tracking-wider">Latar Belakang</span>
                     <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4">Kenapa Produktivitas Rendah?</h2>
                     <p class="text-gray-600 leading-relaxed mb-6">
-                        Banyak petani rakyat memiliki potensi lahan yang besar, namun terhambat oleh kurangnya akses informasi agronomi yang tepat dan manajemen kebun yang masih tradisional.
+                        Banyak petani rakyat memiliki potensi lahan yang besar, namun terhambat oleh kurangnya akses informasi agronomi yang tepat, manajemen kebun yang masih tradisional, dan kurang nya sistem keamanan yang terintegrasi.
                     </p>
                     <div class="bg-brand-50 p-6 rounded-2xl border-l-4 border-brand-500">
                         <p class="text-brand-900 font-medium italic">
-                            "SmartPalm hadir sebagai jembatan teknologi untuk menstandardisasi perawatan kebun rakyat setara dengan kebun perusahaan."
+                            "SmartPalm hadir sebagai jembatan teknologi untuk menstandardisasi perawatan dan keamanan kebun rakyat setara dengan kebun perusahaan."
                         </p>
                     </div>
                 </div>
@@ -266,6 +270,92 @@
                     </ul>
                 </div>
 
+            </div>
+        </div>
+    </section>
+
+    <section id="iot-monitoring" class="py-24 bg-gray-900 text-white relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 opacity-20 pointer-events-none">
+             <div class="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-brand-600 blur-3xl"></div>
+             <div class="absolute top-1/2 right-0 w-64 h-64 rounded-full bg-blue-600 blur-3xl"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <span class="text-brand-400 font-bold text-sm uppercase tracking-wider">Integrasi Hardware & IoT</span>
+                <h2 class="text-3xl md:text-4xl font-bold mt-2">Monitoring Lahan & Keamanan 24/7</h2>
+                <p class="text-gray-400 mt-4 max-w-2xl mx-auto leading-relaxed">
+                    Sistem <b>"Gema Sawit"</b> mendeteksi suara mencurigakan (maling) dan memantau kondisi lingkungan kebun secara realtime melalui sensor pintar.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 mb-16">
+                <div class="bg-gray-800/50 backdrop-blur p-6 rounded-2xl border border-gray-700 hover:border-brand-500 transition group">
+                    <div class="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center text-brand-400 mb-4 group-hover:bg-brand-500 group-hover:text-white transition">
+                        <i class="ph-fill ph-broadcast text-2xl"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-2">Sensor Anti-Maling</h4>
+                    <p class="text-gray-400 text-sm">Mendeteksi tingkat kebisingan (dB) tinggi di jam rawan dan mengirim alert instan ke pemilik.</p>
+                </div>
+
+                <div class="bg-gray-800/50 backdrop-blur p-6 rounded-2xl border border-gray-700 hover:border-brand-500 transition group">
+                    <div class="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center text-blue-400 mb-4 group-hover:bg-blue-500 group-hover:text-white transition">
+                        <i class="ph-fill ph-globe-hemisphere-west text-2xl"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-2">Pemetaan Satelit</h4>
+                    <p class="text-gray-400 text-sm">Visualisasi lokasi sensor dan kondisi lahan via peta satelit interaktif untuk pemantauan akurat.</p>
+                </div>
+
+                <div class="bg-gray-800/50 backdrop-blur p-6 rounded-2xl border border-gray-700 hover:border-brand-500 transition group">
+                    <div class="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center text-green-400 mb-4 group-hover:bg-green-500 group-hover:text-white transition">
+                        <i class="ph-fill ph-telegram-logo text-2xl"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-2">Notifikasi Telegram</h4>
+                    <p class="text-gray-400 text-sm">Laporan kondisi baterai sensor dan peringatan bahaya dikirim langsung ke WhatsApp/Telegram.</p>
+                </div>
+            </div>
+            
+            <div class="bg-gray-800 rounded-3xl p-3 border border-gray-700 shadow-2xl transform hover:scale-[1.01] transition duration-500">
+                 <div class="bg-gray-900 rounded-2xl overflow-hidden relative border border-gray-800">
+                     <div class="h-12 bg-gray-800 border-b border-gray-700 flex items-center px-4 gap-2 justify-between">
+                        <div class="flex gap-2">
+                             <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                             <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                             <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        </div>
+                        <div class="bg-gray-900 px-4 py-1 rounded text-xs text-gray-500 font-mono">dashboard.smartpalm.id/monitoring</div>
+                     </div>
+                     
+                     <div class="p-8 grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                            <p class="text-xs text-gray-400 uppercase">Status Sensor</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                <h4 class="text-2xl font-bold text-white">ONLINE</h4>
+                            </div>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                            <p class="text-xs text-gray-400 uppercase">Kebisingan (Rata-rata)</p>
+                            <h4 class="text-2xl font-bold text-white mt-1">45 <span class="text-sm font-normal text-gray-500">dB</span></h4>
+                        </div>
+                         <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                            <p class="text-xs text-gray-400 uppercase">Baterai Device</p>
+                            <h4 class="text-2xl font-bold text-green-400 mt-1">87%</h4>
+                        </div>
+                         <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                            <p class="text-xs text-gray-400 uppercase">Total Alert</p>
+                            <h4 class="text-2xl font-bold text-red-400 mt-1">0 <span class="text-sm font-normal text-gray-500">Hari ini</span></h4>
+                        </div>
+                        
+                        <div class="col-span-full h-48 bg-gray-800 rounded-xl border border-gray-700 flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(0deg, transparent 24%, #374151 25%, #374151 26%, transparent 27%, transparent 74%, #374151 75%, #374151 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, #374151 25%, #374151 26%, transparent 27%, transparent 74%, #374151 75%, #374151 76%, transparent 77%, transparent); background-size: 30px 30px;"></div>
+                            <div class="text-center z-10">
+                                <i class="ph-duotone ph-chart-line-up text-5xl text-brand-600 mb-2"></i>
+                                <p class="text-xs text-gray-500 font-mono">REALTIME DATA STREAM VISUALIZATION</p>
+                            </div>
+                        </div>
+                     </div>
+                 </div>
             </div>
         </div>
     </section>

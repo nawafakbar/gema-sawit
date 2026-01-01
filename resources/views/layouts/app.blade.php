@@ -57,13 +57,19 @@
                 <a href="{{ url('/dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ Request::is('dashboard') ? $activeClass : $inactiveClass }}">
                     <i class="ph ph-squares-four text-xl"></i> <span>Dashboard</span>
                 </a>
+
+                <a href="{{ route('monitoring') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ Request::routeIs('monitoring') ? $activeClass : $inactiveClass }}">
+                    <i class="ph ph-broadcast text-xl"></i>
+                    <span>Monitoring IoT</span>
+                    <span class="ml-auto w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]"></span>
+                </a>
                 
                 <a href="{{ url('/dashboard/guides') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ Request::is('dashboard/guides') ? $activeClass : $inactiveClass }}">
                     <i class="ph ph-book-open-text text-xl"></i> <span>Buku Saku GAP</span>
                 </a>
 
                 <a href="{{ url('/dashboard/schedules') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ Request::is('dashboard/schedules') ? $activeClass : $inactiveClass }}">
-                    <i class="ph ph-calendar-check text-xl"></i> <span>Jadwal & Notif</span>
+                    <i class="ph ph-calendar-check text-xl"></i> <span>Jadwal Pemeliharaan</span>
                 </a>
 
                 <a href="{{ url('/dashboard/logbook') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ Request::is('dashboard/logbook') ? $activeClass : $inactiveClass }}">
@@ -76,12 +82,6 @@
 
                 <a href="{{ url('/dashboard/finance') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ Request::is('dashboard/finance') ? $activeClass : $inactiveClass }}">
                     <i class="ph ph-currency-dollar text-xl"></i> <span>Keuangan</span>
-                </a>
-
-                <a href="{{ route('monitoring') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 {{ Request::routeIs('monitoring') ? $activeClass : $inactiveClass }}">
-                    <i class="ph ph-broadcast text-xl"></i>
-                    <span>Monitoring IoT</span>
-                    <span class="ml-auto w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]"></span>
                 </a>
 
                 <form action="{{ route('logout') }}" method="POST">
