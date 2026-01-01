@@ -49,17 +49,26 @@
                 <p class="text-gray-500 text-sm">Total Produksi: <span class="font-bold text-brand-600">{{ number_format($total_panen_tahun_ini) }} Kg</span> (Tahun {{ $selectedYear }})</p>
             </div>
             
-            <form action="{{ url('/') }}" method="GET">
+            <form action="{{ route('dashboard') }}" method="GET">
                 <div class="relative">
-                    <i class="ph-fill ph-calendar-blank absolute left-3 top-2.5 text-gray-400"></i>
-                    <select name="year" onchange="this.form.submit()" class="pl-10 pr-8 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-bold text-gray-700 focus:ring-2 focus:ring-brand-500 outline-none cursor-pointer">
-                        @foreach($availableYears as $year)
-                            <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>Tahun {{ $year }}</option>
-                        @endforeach
-                        @if($availableYears->isEmpty())
-                            <option value="{{ date('Y') }}">Tahun {{ date('Y') }}</option>
-                        @endif
+                    <i class="ph-fill ph-calendar-blank absolute left-3 top-2.5 text-gray-400 z-10"></i>
+                    
+                    <select name="year" onchange="this.form.submit()" 
+                            class="pl-10 pr-8 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-bold text-gray-700 focus:ring-2 focus:ring-brand-500 outline-none cursor-pointer w-full appearance-none relative z-0 hover:bg-gray-100 transition">
+                        
+                        @forelse($availableYears as $year)
+                            <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>
+                                Tahun {{ $year }}
+                            </option>
+                        @empty
+                            <option value="{{ date('Y') }}" selected>
+                                Tahun {{ date('Y') }}
+                            </option>
+                        @endforelse
+                        
                     </select>
+                    
+                    <i class="ph-bold ph-caret-down absolute right-3 top-3 text-gray-400 pointer-events-none"></i>
                 </div>
             </form>
         </div>

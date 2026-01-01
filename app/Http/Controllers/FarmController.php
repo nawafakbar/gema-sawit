@@ -20,16 +20,24 @@ class FarmController extends Controller
         $status_lahan = $last_activity && $last_activity->date >= now()->subDays(7) ? 'Terawat' : 'Perlu Perhatian';
 
         // --- 2. DATA GRAFIK PANEN (Tahunan) ---
-        // Ambil tahun dari dropdown (default tahun ini)
         $selectedYear = $request->input('year', date('Y'));
         
-        // Ambil list tahun yang tersedia di database untuk dropdown
-        $availableYears = Harvest::selectRaw('YEAR(date) as year')
+        // AMBIL TAHUN DARI DB
+        $dbYears = Harvest::selectRaw('YEAR(date) as year')
             ->distinct()
             ->orderBy('year', 'desc')
-            ->pluck('year');
+            ->pluck('year')
+            ->toArray();
 
-        // Query Data: Jumlahkan berat per bulan untuk tahun yang dipilih
+        // TRIK: Gabungkan tahun dari DB dengan 3 tahun terakhir manual
+        // Jadi minimal akan muncul [2025, 2024, 2023] walaupun DB kosong
+        $manualYears = range(date('Y'), date('Y') - 2); 
+        $availableYears = array_values(array_unique(array_merge($dbYears, $manualYears)));
+        
+        // Sortir lagi biar rapi (Terbesar ke Terkecil)
+        rsort($availableYears);
+
+        // Query Data (Sama seperti punya mu)
         $monthlyData = Harvest::selectRaw('MONTH(date) as month, SUM(weight_kg) as total')
             ->whereYear('date', $selectedYear)
             ->groupBy('month')
