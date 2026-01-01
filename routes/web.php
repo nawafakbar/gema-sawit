@@ -10,6 +10,8 @@ use App\Http\Controllers\SensorDynamicController;
 Route::get('/', function () {
     return view('landing');
 })->name('home');
+// Chatbot AI
+Route::post('/chatai', [ChatbotControlle::class, 'chat'])->name('chatai');
 
 // 2. AUTHENTICATION (Hanya Login, Register Dibuang)
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
