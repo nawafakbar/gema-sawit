@@ -24,6 +24,15 @@ class SensorDynamicController extends Controller
         ]);
 
         $sensorId  = $validated['sensor_id'];
+
+        // OPSI A: TOLAK DATA RUSAK (Disarankan)
+        if (!str_starts_with($sensorIdRaw, 'ESP32')) {
+            return response()->json([
+                'status'  => 'error', 
+                'message' => 'Invalid Sensor ID Format (Corrupted Data)'
+            ], 422);
+        }
+
         $tableName = strtolower($sensorId) . '_data';
 
         // Normalisasi: simpan ke kolom 'decibel' di DB
@@ -71,7 +80,7 @@ class SensorDynamicController extends Controller
         }
 
         // Kirim notifikasi jika decibel > 40 (tanpa lat/lng/alias)
-        if ($decibel > 40) {
+        if ($decibel > 70) {
             $message = "🚨 Aktivitas mencurigakan!\n"
                     . "Sensor: {$sensorId}\n"
                     . "Decibel: {$decibel}\n"
