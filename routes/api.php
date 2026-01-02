@@ -16,6 +16,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // 1. Webhook Penerima Data (Dari Alat)
 //    Method: POST, Function: store()
 Route::post('/sensors/data', [SensorDynamicController::class, 'store']);
+Route::post('/sensors/clear', [App\Http\Controllers\SensorDynamicController::class, 'clearData']);
 
 Route::prefix('sensors')->group(function () {
     

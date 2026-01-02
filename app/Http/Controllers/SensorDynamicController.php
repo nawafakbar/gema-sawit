@@ -96,6 +96,30 @@ class SensorDynamicController extends Controller
         ]);
     }
 
+    // POST /api/sensors/clear
+    public function clearData(Request $request)
+    {
+        $sensorId = $request->input('sensor_id');
+
+        if (!$sensorId) {
+            return response()->json(['status' => 'error', 'message' => 'Sensor ID required'], 422);
+        }
+
+        $tableName = strtolower($sensorId) . '_data';
+
+        if (Schema::hasTable($tableName)) {
+            // Truncate menghapus semua data & mereset ID ke 1
+            DB::table($tableName)->truncate(); 
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => "Data sensor {$sensorId} berhasil dikosongkan."
+            ]);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Table not found'], 404);
+    }
+
     // GET /api/sensors/get?sensor_id=ESP32_A
     public function getData(Request $request)
     {

@@ -111,9 +111,14 @@
                         <p class="text-xs text-brand-100 mt-1" id="detailSub">Location info</p>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="toggleModal('detailModal'); openMetaModal(currentSensorId)" class="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition">
+                        <button onclick="confirmClearData(currentSensorId)" class="p-2 bg-red-500 hover:bg-red-600 rounded-lg text-white transition shadow-sm" title="Hapus Semua Data">
+                            <i class="ph-bold ph-trash"></i>
+                        </button>
+
+                        <button onclick="toggleModal('detailModal'); openMetaModal(currentSensorId)" class="p-2 bg-white/20 hover:bg-white/30 rounded-lg text-white transition">
                             <i class="ph-bold ph-pencil-simple"></i>
                         </button>
+
                         <button onclick="toggleModal('detailModal')" class="p-2 hover:bg-white/20 rounded-lg text-white transition">
                             <i class="ph-bold ph-x"></i>
                         </button>
@@ -348,6 +353,44 @@
         const r = await fetch(url);
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
+    }
+
+    // --- TAMBAHAN: FUNGSI HAPUS DATA ---
+    async function confirmClearData(id) {
+        // 1. Konfirmasi Ganda agar tidak salah pencet
+        const confirmMsg = `⚠️ BAHAYA: Anda yakin ingin menghapus SEMUA RIWAYAT data untuk sensor: ${id}?\n\nData yang sudah dihapus TIDAK BISA dikembalikan. Database akan dimulai dari nol.`;
+        
+        if(!confirm(confirmMsg)) return;
+
+        // 2. Tampilkan loading toast
+        showToast('Sedang menghapus data...', 'info');
+
+        try {
+            // 3. Panggil API Laravel
+            const response = await fetch('/api/sensors/clear', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Jika pakai CSRF Token Laravel di web routes (opsional untuk API tapi bagus ada)
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                },
+                body: JSON.stringify({ sensor_id: id })
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                showToast('✅ Database sensor berhasil di-refresh!', 'success');
+                toggleModal('detailModal'); // Tutup modal detail
+                refreshAll(true); // Refresh dashboard biar angkanya jadi 0
+            } else {
+                showToast('❌ Gagal: ' + result.message, 'danger');
+            }
+
+        } catch (error) {
+            console.error(error);
+            showToast('❌ Terjadi kesalahan koneksi', 'danger');
+        }
     }
 
     // --- 3. METADATA LOGIC ---
