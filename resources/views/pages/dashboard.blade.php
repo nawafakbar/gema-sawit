@@ -33,7 +33,7 @@
             <div>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Tugas Menunggu</p>
                 <h3 class="text-xl font-bold text-gray-800 mt-1">{{ $jadwal_pending }} <span class="text-sm font-normal text-gray-500">Aktivitas</span></h3>
-                <a href="{{ url('/schedules') }}" class="text-xs text-brand-600 font-bold mt-1 hover:underline">Lihat Jadwal &rarr;</a>
+                <a href="{{ url('/dashboard/schedules') }}" class="text-xs text-brand-600 font-bold mt-1 hover:underline">Lihat Jadwal &rarr;</a>
             </div>
             <div class="p-3 bg-orange-50 text-orange-500 rounded-xl">
                 <i class="ph-fill ph-clock text-2xl"></i>

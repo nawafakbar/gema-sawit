@@ -79,7 +79,7 @@ class SensorDynamicController extends Controller
             ], 500);
         }
 
-        // Kirim notifikasi jika decibel > 40 (tanpa lat/lng/alias)
+        // Kirim notifikasi jika decibel > 55
         if ($decibel > 55) {
             $message = "🚨 Aktivitas mencurigakan!\n"
                     . "Sensor: {$sensorId}\n"
