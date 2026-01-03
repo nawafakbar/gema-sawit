@@ -55,7 +55,7 @@
         <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-5 rounded-2xl text-white shadow-lg shadow-emerald-200 relative overflow-hidden group">
             <div class="relative z-10">
                 <p class="text-xs opacity-80 uppercase font-bold tracking-wider">Online</p>
-                <h3 class="text-3xl font-bold mt-1" id="statOnline">0</h3>
+                <h3 class="text-3xl font-bold mt-1" id="statOnline">5</h3>
                 <p class="text-[10px] opacity-70 mt-1">≤ <span id="statOnlineWindowDisplay">2</span> menit terakhir</p>
             </div>
             <i class="ph-fill ph-wifi-high absolute -right-2 -bottom-2 text-6xl opacity-20 group-hover:scale-110 transition"></i>
