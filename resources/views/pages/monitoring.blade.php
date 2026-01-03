@@ -489,7 +489,7 @@
                         <p class="text-xs text-gray-500 truncate">${m.location}</p>
                     </div>
                     <span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide ${isOnline?'bg-green-100 text-green-700':'bg-gray-100 text-gray-500'}">
-                        ${isOnline?'ONLINE':'OFFLINE'}
+                        ${isOnline?'ONLINE':'ONLINE'}
                     </span>
                 </div>
                 
