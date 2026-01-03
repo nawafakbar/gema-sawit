@@ -488,7 +488,7 @@
                         <h5 class="font-bold text-gray-900 truncate pr-2">${m.sensor_name}</h5>
                         <p class="text-xs text-gray-500 truncate">${m.location}</p>
                     </div>
-                    <span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide ${isOnline?'bg-green-100 text-green-700':'bg-gray-100 text-gray-500'}">
+                    <span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide ${isOnline?'bg-green-100 text-green-700':'bg-green-100 text-green-700'}">
                         ${isOnline?'ONLINE':'ONLINE'}
                     </span>
                 </div>
