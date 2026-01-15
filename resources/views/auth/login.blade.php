@@ -60,7 +60,7 @@
         
         <div class="mt-8 text-center text-sm text-gray-400">
             <p>Lupa password atau belum punya akun?</p>
-            <p class="mt-1">Silakan hubungi <span class="font-bold text-gray-600">Admin Koperasi Unit Desa (KUD)</span>.</p>
+            <p class="mt-1">Silakan hubungi <span class="font-bold text-gray-600">Admin +62 857 5987 3301</span>.</p>
         </div>
     </div>
 
