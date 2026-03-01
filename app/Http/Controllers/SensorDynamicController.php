@@ -12,9 +12,23 @@ use Carbon\Carbon;
 
 class SensorDynamicController extends Controller
 {
-    // POST /api/sensors/data
+    // =========================================================================
+    // 1. KONFIGURASI KOORDINAT (GANTI DENGAN TITIK ASLI GOOGLE MAPS)
+    // =========================================================================
+    private $sensor_locations = [
+        'ESP32_001' => ['lat' => -0.91234567,  'lng' => 100.35511111], 
+        'ESP32_002' => ['lat' => -0.91244567,  'lng' => 100.35522222],
+        'ESP32_003' => ['lat' => -0.91254567,  'lng' => 100.35533333],
+        'ESP32_004' => ['lat' => -0.91264567,  'lng' => 100.35544444],
+        'ESP32_005' => ['lat' => -0.91274567,  'lng' => 100.35555555],
+    ];
+
+    // =========================================================================
+    // 2. FUNGSI UTAMA: MENERIMA DATA (STORE)
+    // =========================================================================
     public function store(Request $request)
     {
+        // Validasi input (Logika Lama)
         $validated = $request->validate([
             'sensor_id'       => 'required|string',
             'desibel'         => 'nullable|numeric',
@@ -25,7 +39,7 @@ class SensorDynamicController extends Controller
 
         $sensorId  = $validated['sensor_id'];
 
-        // OPSI A: TOLAK DATA RUSAK (Disarankan)
+        // OPSI A: TOLAK DATA RUSAK (Logika Lama)
         if (!str_starts_with($sensorId, 'ESP32_')) {
             return response()->json([
                 'status'  => 'error', 
@@ -35,7 +49,7 @@ class SensorDynamicController extends Controller
 
         $tableName = strtolower($sensorId) . '_data';
 
-        // Normalisasi: simpan ke kolom 'decibel' di DB
+        // Normalisasi: simpan ke kolom 'decibel' di DB (Logika Lama)
         $decibel = $validated['desibel'] ?? $validated['decibel'] ?? null;
         if ($decibel === null) {
             return response()->json([
@@ -44,7 +58,7 @@ class SensorDynamicController extends Controller
             ], 422);
         }
 
-        // Daftar sensor
+        // Daftar sensor (Logika Lama)
         if (!DB::table('sensor_list')->where('sensor_id', $sensorId)->exists()) {
             DB::table('sensor_list')->insert([
                 'sensor_id'  => $sensorId,
@@ -53,7 +67,7 @@ class SensorDynamicController extends Controller
             ]);
         }
 
-        // Tabel dinamis
+        // Tabel dinamis (Logika Lama)
         if (!Schema::hasTable($tableName)) {
             Schema::create($tableName, function (Blueprint $table) {
                 $table->id();
@@ -64,6 +78,7 @@ class SensorDynamicController extends Controller
             });
         }
 
+        // Insert Data (Logika Lama)
         try {
             DB::table($tableName)->insert([
                 'decibel'         => $decibel,
@@ -79,22 +94,36 @@ class SensorDynamicController extends Controller
             ], 500);
         }
 
-        // Kirim notifikasi jika decibel > 55
+        // --- BAGIAN INI DIMODIFIKASI UNTUK TDOA ---
+        // Kirim notifikasi HANYA jika hasil kalkulasi TDOA valid (Single notif dihapus)
+        $tdoaResult = null;
         if ($decibel > 55) {
-            $message = "🚨 Aktivitas mencurigakan!\n"
-                    . "Sensor: {$sensorId}\n"
-                    . "Decibel: {$decibel}\n"
-                    . "Waktu: " . Carbon::parse($validated['timestamp'])->format('d-m-Y H:i:s') . "\n"
-                    . "Baterai: {$validated['battery_percent']}%";
+            // Cari data sensor lain di menit yang sama
+            $eventData = $this->gatherEventData($validated['timestamp']);
 
-            TelegramHelper::sendMessage($message);
+            // Syarat TDOA: Minimal 3 Sensor mendengar suara > 55dB
+            if (count($eventData) >= 3) {
+                // Hitung Posisi
+                $tdoaResult = $this->calculatePosition($eventData);
+                
+                // Jika koordinat ketemu, kirim notifikasi TDOA
+                if ($tdoaResult) {
+                    $this->sendTdoaNotification($tdoaResult, $eventData);
+                }
+            }
         }
+        // ------------------------------------------
 
         return response()->json([
             'status'  => 'success',
             'message' => "Data inserted into {$tableName}",
+            'tdoa_analysis' => $tdoaResult ? 'Location Found' : 'Data Saved (Waiting for more sensors)'
         ]);
     }
+
+    // =========================================================================
+    // 3. FUNGSI PENDUKUNG LAMA (CLEAR, GET, SUMMARY, HISTORY)
+    // =========================================================================
 
     // POST /api/sensors/clear
     public function clearData(Request $request)
@@ -233,5 +262,87 @@ class SensorDynamicController extends Controller
             'status' => 'success',
             'grafik' => $grafik,
         ]);
+    }
+
+    // =========================================================================
+    // 4. PRIVATE HELPER FUNCTIONS (UNTUK LOGIKA TDOA)
+    // =========================================================================
+
+    // Fungsi: Mengumpulkan Data dari Semua Tabel di Menit yang Sama
+    private function gatherEventData($timestampInput)
+    {
+        $targetTime = Carbon::parse($timestampInput);
+        $startTime = $targetTime->copy()->startOfMinute();
+        $endTime   = $targetTime->copy()->endOfMinute();
+
+        $activeSensors = [];
+        $allSensors = array_keys($this->sensor_locations);
+
+        foreach ($allSensors as $sensor) {
+            $tableName = strtolower($sensor) . '_data';
+            
+            if (Schema::hasTable($tableName)) {
+                $record = DB::table($tableName)
+                    ->whereBetween('timestamp', [$startTime, $endTime])
+                    ->where('decibel', '>', 55)
+                    ->orderBy('decibel', 'desc')
+                    ->first();
+
+                if ($record) {
+                    $activeSensors[] = [
+                        'id'  => $sensor,
+                        'lat' => $this->sensor_locations[$sensor]['lat'],
+                        'lng' => $this->sensor_locations[$sensor]['lng'],
+                        'db'  => $record->decibel
+                    ];
+                }
+            }
+        }
+        return $activeSensors;
+    }
+
+    // Fungsi: Hitung Posisi (Weighted Centroid)
+    private function calculatePosition($sensors)
+    {
+        $sumLatW = 0; $sumLngW = 0; $sumW = 0;
+
+        foreach ($sensors as $s) {
+            // Bobot pangkat 4 agar sensor terdekat (suara terkeras) sangat dominan
+            $weight = pow($s['db'], 4); 
+            
+            $sumLatW += $s['lat'] * $weight;
+            $sumLngW += $s['lng'] * $weight;
+            $sumW    += $weight;
+        }
+
+        if ($sumW == 0) return null;
+
+        return [
+            'lat' => $sumLatW / $sumW,
+            'lng' => $sumLngW / $sumW
+        ];
+    }
+
+    // Fungsi: Kirim Notifikasi Telegram TDOA
+    private function sendTdoaNotification($coord, $sensors)
+    {
+        $listSensor = "";
+        foreach($sensors as $s) {
+            $listSensor .= "- {$s['id']}: {$s['db']} dB\n";
+        }
+
+        // Link Google Maps
+        $gmapsLink = "https://www.google.com/maps?q={$coord['lat']},{$coord['lng']}";
+
+        $message = "🚨 <b>BAHAYA! AKTIVITAS MENCURIGAKAN (TDOA DETECTED)</b>\n\n"
+                 . "Sistem mendeteksi suara keras dari " . count($sensors) . " sensor sekaligus.\n\n"
+                 . "📍 <b>Lokasi Estimasi Sumber Suara:</b>\n"
+                 . "<a href='{$gmapsLink}'>KLIK UNTUK BUKA PETA (NAVIGASI)</a>\n"
+                 . "(Lat: {$coord['lat']}, Lng: {$coord['lng']})\n\n"
+                 . "🔍 <b>Bukti Deteksi:</b>\n"
+                 . $listSensor
+                 . "\n<i>Segera luncurkan tim patroli ke titik tersebut!</i>";
+        
+        TelegramHelper::sendMessage($message);
     }
 }
