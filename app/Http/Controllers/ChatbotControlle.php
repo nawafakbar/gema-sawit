@@ -111,17 +111,10 @@ PROMPT;
                 'topK'            => 40,
             ];
 
-            // Aktifkan thinking untuk analisis foto (lebih akurat)
             $payload = [
                 'contents'         => $contents,
                 'generationConfig' => $generationConfig,
             ];
-
-            if ($imageFile) {
-                $payload['thinkingConfig'] = [
-                    'thinkingBudget' => 512, // token budget untuk reasoning internal
-                ];
-            }
 
             // --- 5. Kirim ke Google Gemini API ---
             $url = "https://generativelanguage.googleapis.com/{$this->apiVersion}/models/{$this->model}:generateContent?key={$apiKey}";
