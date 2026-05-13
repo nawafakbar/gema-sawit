@@ -268,8 +268,7 @@
 
                 <!-- Left copy -->
                 <div>
-                    <div class="badge mb-8 anim-fadeup">
-                        <span class="w-2 h-2 text-gray-900 pulse-dot"></span>
+                    <div class="mb-8 anim-fadeup text-gray-900">
                         Dr.Sawit + IoT
                     </div>
 
