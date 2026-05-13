@@ -11,7 +11,13 @@ class ChatbotControlle extends Controller
     // =========================================================
     // KONFIGURASI MODEL
     // =========================================================
-    private string $model        = 'gemini-3.1-flash-lite';
+    //private string $model        = 'gemini-3.1-flash-lite';
+    // Ganti properti model menjadi array
+    private array $models = [
+        'gemini-3.1-flash-lite',   // prioritas utama
+        'gemini-2.0-flash',         // fallback 1
+        'gemini-1.5-flash',         // fallback 2
+    ];
     private string $apiVersion   = 'v1beta';
     private int    $maxTokens    = 2048;
     private float  $temperature  = 0.7;
@@ -117,16 +123,27 @@ PROMPT;
             ];
 
             // --- 5. Kirim ke Google Gemini API ---
-            $url = "https://generativelanguage.googleapis.com/{$this->apiVersion}/models/{$this->model}:generateContent?key={$apiKey}";
+            $response = null;
+            $usedModel = null;
 
-            $response = Http::withoutVerifying()
-                ->timeout($this->timeoutSec)
-                ->retry($this->retryTimes, $this->retryDelay, function ($exception) {
-                    // Hanya retry jika koneksi timeout, bukan error 4xx
-                    return $exception instanceof \Illuminate\Http\Client\ConnectionException;
-                })
-                ->withHeaders(['Content-Type' => 'application/json'])
-                ->post($url, $payload);
+            foreach ($this->models as $model) {
+                $url = "https://generativelanguage.googleapis.com/{$this->apiVersion}/models/{$model}:generateContent?key={$apiKey}";
+
+                $resp = Http::withoutVerifying()
+                    ->timeout($this->timeoutSec)
+                    ->withHeaders(['Content-Type' => 'application/json'])
+                    ->post($url, $payload);
+
+                if ($resp->successful()) {
+                    $response = $resp;
+                    $usedModel = $model;
+                    break;
+                }
+            }
+
+            if (!$response) {
+                return response()->json(['reply' => '⚠️ Semua model AI sedang sibuk. Coba lagi beberapa saat.'], 503);
+            }
 
             // --- 6. Tangani Response Error dari Google ---
             if ($response->failed()) {
@@ -149,8 +166,8 @@ PROMPT;
 
             return response()->json([
                 'reply'  => $botReply,
-                'model'  => $this->model,
-                'tokens' => $result['usageMetadata'] ?? null, // opsional: info penggunaan token
+                'model'  => $usedModel,
+                'tokens' => $result['usageMetadata'] ?? null,
             ]);
 
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
