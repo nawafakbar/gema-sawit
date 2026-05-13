@@ -269,8 +269,8 @@
                 <!-- Left copy -->
                 <div>
                     <div class="badge mb-8 anim-fadeup">
-                        <span class="w-2 h-2 bg-brand-400 rounded-full pulse-dot"></span>
-                        Sistem Aktif · IoT + AI
+                        <span class="w-2 h-2 text-gray-900 pulse-dot"></span>
+                        Dr.Sawit + IoT
                     </div>
 
                     <h1 class="font-display text-5xl md:text-6xl font-800 leading-[1.05] tracking-tight text-gray-900 mb-6 anim-fadeup delay-1">
