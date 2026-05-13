@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class ChatbotController extends Controller
+class ChatbotControlle extends Controller
 {
     // =========================================================
     // KONFIGURASI MODEL
