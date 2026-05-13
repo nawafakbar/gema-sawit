@@ -269,7 +269,7 @@
                 <!-- Left copy -->
                 <div>
                     <div class="ms-1 mb-8 anim-fadeup text-gray-900">
-                        Dr.Sawit + IoT
+                        Dr.Sawit AI + IoT
                     </div>
 
                     <h1 class="font-display text-5xl md:text-6xl font-800 leading-[1.05] tracking-tight text-gray-900 mb-6 anim-fadeup delay-1">
