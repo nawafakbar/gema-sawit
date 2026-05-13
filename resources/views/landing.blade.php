@@ -766,7 +766,7 @@
     </button>
 
     <!-- ═══════════════════════ CHAT WINDOW ═══════════════════════ -->
-    <div id="chatWindow" class="fixed bottom-24 left-4 right-4 md:left-auto md:right-6 z-40 md:w-[360px] bg-white rounded-3xl shadow-2xl border border-gray-100 hidden flex flex-col overflow-hidden transition-all duration-300 origin-bottom-right scale-95 opacity-0 font-body h-[60vh] md:h-[550px]">
+    <div id="chatWindow" class="fixed bottom-[88px] left-4 right-4 md:left-auto md:right-6 z-40 md:w-[360px] bg-white rounded-3xl shadow-2xl border border-gray-100 hidden flex flex-col overflow-hidden transition-all duration-300 origin-bottom-right scale-95 opacity-0 font-sans" style="height: min(560px, calc(100dvh - 120px))">
 
         <div class="bg-white p-4 md:p-5 border-b border-gray-100 flex justify-between items-center relative z-10 shrink-0">
             <div class="flex items-center gap-3">
