@@ -370,7 +370,7 @@
                 <span class="text-white/40">✦</span>
                 <span class="text-white font-display font-700 text-sm uppercase tracking-widest opacity-80">Diagnosa AI</span>
                 <span class="text-white/40">✦</span>
-                <span class="text-white font-display font-700 text-sm uppercase tracking-widest opacity-80">Anti Pencurian IoT</span>
+                <span class="text-white font-display font-700 text-sm uppercase tracking-widest opacity-80">Pencegahan (IoT) Ninja Sawit</span>
                 <span class="text-white/40">✦</span>
                 <span class="text-white font-display font-700 text-sm uppercase tracking-widest opacity-80">Notifikasi Telegram</span>
                 <span class="text-white/40">✦</span>
