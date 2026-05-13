@@ -268,7 +268,7 @@
 
                 <!-- Left copy -->
                 <div>
-                    <div class="mb-8 anim-fadeup text-gray-900">
+                    <div class="ms-1 mb-8 anim-fadeup text-gray-900">
                         Dr.Sawit + IoT
                     </div>
 
