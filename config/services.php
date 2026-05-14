@@ -39,4 +39,8 @@ return [
         'api_key' => env('GEMINI_API_KEY'),
     ],
 
+    'mcp' => [
+        'mysql_url' => env('MCP_MYSQL_URL'),
+    ],
+
 ];

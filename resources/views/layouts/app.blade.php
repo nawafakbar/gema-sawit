@@ -132,8 +132,8 @@
         </div>
     </button>
 
-    <div id="chatWindow" class="fixed bottom-24 left-4 right-4 md:left-auto md:right-6 z-40 md:w-[360px] bg-white rounded-3xl shadow-2xl border border-gray-100 hidden flex flex-col overflow-hidden transition-all duration-300 origin-bottom-right scale-95 opacity-0 font-sans h-[60vh] md:h-[550px]">
-        
+    <div id="chatWindow" class="fixed bottom-[88px] left-4 right-4 md:left-auto md:right-6 z-40 md:w-[360px] bg-white rounded-3xl shadow-2xl border border-gray-100 hidden flex flex-col overflow-hidden transition-all duration-300 origin-bottom-right scale-95 opacity-0 font-sans" style="height: min(560px, calc(100dvh - 120px))">
+
         <div class="bg-white p-4 md:p-5 border-b border-gray-100 flex justify-between items-center relative z-10 shrink-0">
             <div class="flex items-center gap-3">
                 <div class="relative">
@@ -143,10 +143,8 @@
                     <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
                 </div>
                 <div>
-                    <h3 class="font-bold text-gray-800 text-base leading-tight">Dr. Sawit AI</h3>
-                    <p class="text-xs text-brand-600 font-medium bg-brand-50 px-2 py-0.5 rounded-full inline-block mt-1">
-                        Agronomist Expert
-                    </p>
+                    <h3 class="font-display font-700 text-gray-800 text-base leading-tight">Dr. Sawit AI</h3>
+                    <p class="text-xs text-brand-600 font-medium bg-brand-50 px-2 py-0.5 rounded-full inline-block mt-1">Agronomist Expert</p>
                 </div>
             </div>
             <button onclick="toggleChat()" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition">
@@ -158,7 +156,6 @@
             <div class="text-center">
                 <span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-full uppercase tracking-wider">Hari Ini</span>
             </div>
-
             <div class="flex gap-3 md:gap-4 items-end">
                 <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-green-400 flex items-center justify-center flex-shrink-0 text-white shadow-md shadow-brand-200">
                     <i class="ph-fill ph-sparkle text-sm"></i>
@@ -187,15 +184,12 @@
             <form id="chatForm" onsubmit="sendMessage(event)" class="flex gap-2 items-end">
                 @csrf
                 <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="previewImage(this)">
-                
                 <button type="button" onclick="document.getElementById('imageInput').click()" class="w-10 h-10 md:w-11 md:h-11 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:bg-brand-50 hover:text-brand-600 transition border border-transparent hover:border-brand-200 shrink-0">
                     <i class="ph-bold ph-image text-lg md:text-xl"></i>
                 </button>
-
                 <div class="flex-1 relative">
                     <input type="text" id="messageInput" placeholder="Ketik pertanyaan..." class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-4 pr-10 py-2.5 md:py-3 text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition-all placeholder-gray-400">
                 </div>
-                
                 <button type="submit" id="sendBtn" class="w-10 h-10 md:w-11 md:h-11 flex items-center justify-center rounded-xl bg-gray-900 text-white shadow-lg hover:bg-black hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0">
                     <i class="ph-fill ph-paper-plane-right text-lg"></i>
                 </button>
@@ -211,13 +205,8 @@
     </style>
 
     <script>
-        // ... (Script logika JS sama persis seperti sebelumnya) ...
-        // Copy script JS dari jawaban sebelumnya, atau pakai yang sudah ada.
-        // CUMA GANTI bagian "Tampilkan Loading Bubble" biar visualnya senada:
-        
         const chatWindow = document.getElementById('chatWindow');
         const messagesArea = document.getElementById('chatMessages');
-        const chatForm = document.getElementById('chatForm');
         const sendBtn = document.getElementById('sendBtn');
 
         function toggleChat() {
@@ -228,9 +217,7 @@
                 }, 10);
             } else {
                 chatWindow.classList.add('scale-95', 'opacity-0');
-                setTimeout(() => {
-                    chatWindow.classList.add('hidden');
-                }, 300);
+                setTimeout(() => { chatWindow.classList.add('hidden'); }, 300);
             }
         }
 
@@ -252,7 +239,6 @@
 
         async function sendMessage(e) {
             e.preventDefault();
-            
             const messageInput = document.getElementById('messageInput');
             const imageInput = document.getElementById('imageInput');
             const message = messageInput.value.trim();
@@ -260,7 +246,6 @@
 
             if (!message && !image) return;
 
-            // 1. User Message UI
             let userHtml = `
                 <div class="flex gap-3 flex-row-reverse animate-fade-in">
                     <div class="bg-gray-900 p-3 rounded-2xl rounded-br-none shadow-md text-sm text-white max-w-[85%]">
@@ -271,17 +256,15 @@
             messagesArea.innerHTML += userHtml;
             messagesArea.scrollTop = messagesArea.scrollHeight;
 
-            // Disable Input
             messageInput.value = '';
             removeImage();
             messageInput.disabled = true;
             sendBtn.disabled = true;
-            
-            // 2. Loading UI (Keren)
+
             const loadingId = 'loading-' + Date.now();
             messagesArea.innerHTML += `
                 <div id="${loadingId}" class="flex gap-4 items-end animate-fade-in">
-                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-green-400 flex items-center justify-center flex-shrink-0 text-white shadow-md shadow-brand-200">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-green-400 flex items-center justify-center flex-shrink-0 text-white shadow-md shadow-brand-200">
                         <i class="ph-fill ph-sparkle text-sm animate-spin"></i>
                     </div>
                     <div class="bg-white p-4 rounded-2xl rounded-bl-none shadow-sm border border-gray-100">
@@ -294,22 +277,19 @@
                 </div>`;
             messagesArea.scrollTop = messagesArea.scrollHeight;
 
-            // 3. Send to Backend
             const formData = new FormData();
             formData.append('message', message);
             if (image) formData.append('image', image);
             formData.append('_token', '{{ csrf_token() }}');
 
             try {
-                const response = await fetch('{{ route("chat.ai") }}', {
+                const response = await fetch('{{ route("chatai") }}', {
                     method: 'POST',
                     body: formData
                 });
                 const data = await response.json();
-                
                 document.getElementById(loadingId).remove();
 
-                // 4. Bot Response UI
                 const botHtml = `
                     <div class="flex gap-4 items-end animate-fade-in">
                         <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-green-400 flex items-center justify-center flex-shrink-0 text-white shadow-md shadow-brand-200">
@@ -331,20 +311,16 @@
                 messagesArea.scrollTop = messagesArea.scrollHeight;
             }
         }
-    </script>
 
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            
-            // Toggle Translate (Keluar/Masuk)
-            if (sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.remove('-translate-x-full'); // Munculkan Sidebar
-                overlay.classList.remove('hidden'); // Munculkan Overlay
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const icon = document.getElementById('menuIcon');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                icon.classList.replace('ph-list', 'ph-x');
             } else {
-                sidebar.classList.add('-translate-x-full'); // Sembunyikan Sidebar
-                overlay.classList.add('hidden'); // Sembunyikan Overlay
+                menu.classList.add('hidden');
+                icon.classList.replace('ph-x', 'ph-list');
             }
         }
     </script>

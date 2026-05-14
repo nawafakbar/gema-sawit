@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\McpService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -11,19 +12,15 @@ class ChatbotControlle extends Controller
     // =========================================================
     // KONFIGURASI MODEL
     // =========================================================
-    //private string $model        = 'gemini-3.1-flash-lite';
-    // Ganti properti model menjadi array
     private array $models = [
-        'gemini-3.1-flash-lite',   // prioritas utama
-        'gemini-2.0-flash',         // fallback 1
-        'gemini-1.5-flash',         // fallback 2
+        'gemini-3.1-flash-lite',
+        'gemini-2.5-flash-lite',
     ];
-    private string $apiVersion   = 'v1beta';
-    private int    $maxTokens    = 2048;
-    private float  $temperature  = 0.7;
-    private int    $timeoutSec   = 60;
-    private int    $retryTimes   = 2;
-    private int    $retryDelay   = 3000; // ms
+
+    private string $apiVersion = 'v1beta';
+    private int    $maxTokens  = 2048;
+    private float  $temperature = 0.7;
+    private int    $timeoutSec  = 60;
 
     // =========================================================
     // SYSTEM PROMPT — Kepribadian Dr. Sawit
@@ -45,6 +42,7 @@ Keahlianmu meliputi:
 - Sertifikasi RSPO dan praktik perkebunan berkelanjutan
 
 Cara menjawab:
+- Jika ada data petani di bawah ini, gunakan data tersebut untuk memberikan jawaban yang personal dan spesifik
 - Jika ada foto/gambar: analisis secara visual terlebih dahulu, sebutkan gejala yang terlihat, lalu berikan diagnosis dan solusi
 - Jawaban terstruktur: Diagnosis -> Penyebab -> Solusi Segera -> Pencegahan
 - Gunakan emoji secukupnya agar mudah dibaca
@@ -62,35 +60,51 @@ PROMPT;
     {
         // --- 1. Validasi Input ---
         $request->validate([
-            'message' => 'nullable|string|max:2000',
-            'image'   => 'nullable|file|mimes:jpg,jpeg,png,webp|max:5120', // max 5MB
+            'message'   => 'nullable|string|max:2000',
+            'image'     => 'nullable|file|mimes:jpg,jpeg,png,webp|max:5120',
+            'petani_id' => 'nullable|integer',  // ← kirim dari frontend kalau user sudah login
         ]);
 
         // --- 2. Cek API Key ---
         $apiKey = config('services.gemini.api_key') ?? env('GEMINI_API_KEY');
         if (empty($apiKey)) {
             return response()->json([
-                'reply' => '⚠️ FATAL: API Key belum dikonfigurasi. Jalankan "php artisan config:clear" di terminal.'
+                'reply' => '⚠️ FATAL: API Key belum dikonfigurasi.'
             ], 500);
         }
 
         try {
             $userMessage = $request->input('message');
             $imageFile   = $request->file('image');
+            $petaniId = auth()->id();
 
-            // Wajib ada salah satu: pesan atau gambar
             if (empty($userMessage) && !$imageFile) {
                 return response()->json(['reply' => 'Silakan ketik pertanyaan atau kirim foto tanaman Anda.'], 422);
             }
 
-            // --- 3. Bangun Payload Contents ---
+            // --- 3. Ambil Konteks Database via MCP (jika user sudah login) ---
+            $konteksDb = '';
+            if ($petaniId) {
+                $mcp       = new McpService();
+                // Kirim keyword dari pertanyaan user agar guides yang relevan ikut diambil
+                $konteksDb = $mcp->buildKonteksPetani((int) $petaniId, $userMessage ?? '');
+            }
+
+            // --- 4. Bangun System Prompt + Konteks DB ---
+            $systemFinal = $this->systemPrompt;
+
+            if (!empty($konteksDb)) {
+                $systemFinal .= "\n\n===== DATA DATABASE PETANI INI =====\n"
+                    . $konteksDb
+                    . "\n===== (Gunakan data di atas untuk menjawab secara personal) =====";
+            }
+
+            // --- 5. Bangun Payload Contents ---
             $parts = [];
 
-            // Gabungkan system prompt + pesan user dalam satu turn
-            $fullPrompt = $this->systemPrompt . "\n\n---\nPertanyaan Petani: " . ($userMessage ?? 'Tolong analisis foto ini.');
-            $parts[] = ['text' => $fullPrompt];
+            $fullPrompt = $systemFinal . "\n\n---\nPertanyaan Petani: " . ($userMessage ?? 'Tolong analisis foto ini.');
+            $parts[]    = ['text' => $fullPrompt];
 
-            // Jika ada gambar, sertakan sebagai inline_data
             if ($imageFile) {
                 $imageData = base64_encode(file_get_contents($imageFile->getRealPath()));
                 $mimeType  = $imageFile->getMimeType();
@@ -109,33 +123,29 @@ PROMPT;
                 ]
             ];
 
-            // --- 4. Konfigurasi Generasi ---
-            $generationConfig = [
-                'maxOutputTokens' => $this->maxTokens,
-                'temperature'     => $this->temperature,
-                'topP'            => 0.9,
-                'topK'            => 40,
-            ];
-
             $payload = [
                 'contents'         => $contents,
-                'generationConfig' => $generationConfig,
+                'generationConfig' => [
+                    'maxOutputTokens' => $this->maxTokens,
+                    'temperature'     => $this->temperature,
+                    'topP'            => 0.9,
+                    'topK'            => 40,
+                ],
             ];
 
-            // --- 5. Kirim ke Google Gemini API ---
-            $response = null;
+            // --- 6. Kirim ke Gemini API (dengan fallback model) ---
+            $response  = null;
             $usedModel = null;
 
             foreach ($this->models as $model) {
-                $url = "https://generativelanguage.googleapis.com/{$this->apiVersion}/models/{$model}:generateContent?key={$apiKey}";
-
+                $url  = "https://generativelanguage.googleapis.com/{$this->apiVersion}/models/{$model}:generateContent?key={$apiKey}";
                 $resp = Http::withoutVerifying()
                     ->timeout($this->timeoutSec)
                     ->withHeaders(['Content-Type' => 'application/json'])
                     ->post($url, $payload);
 
                 if ($resp->successful()) {
-                    $response = $resp;
+                    $response  = $resp;
                     $usedModel = $model;
                     break;
                 }
@@ -145,36 +155,28 @@ PROMPT;
                 return response()->json(['reply' => '⚠️ Semua model AI sedang sibuk. Coba lagi beberapa saat.'], 503);
             }
 
-            // --- 6. Tangani Response Error dari Google ---
             if ($response->failed()) {
-                $errorBody = $response->json();
-                $errorMsg  = $errorBody['error']['message'] ?? $response->body();
-                Log::error('Gemini API Error', ['status' => $response->status(), 'message' => $errorMsg]);
-
-                return response()->json([
-                    'reply' => "⚠️ Gagal menghubungi server AI: {$errorMsg}"
-                ], 500);
+                $errorMsg = $response->json()['error']['message'] ?? $response->body();
+                return response()->json(['reply' => "⚠️ Gagal menghubungi server AI: {$errorMsg}"], 500);
             }
 
-            // --- 7. Ekstrak Teks Balasan ---
+            // --- 7. Ekstrak & Format Balasan ---
             $result   = $response->json();
             $botReply = $result['candidates'][0]['content']['parts'][0]['text']
                 ?? 'Maaf, saya tidak dapat memberikan jawaban saat ini. Silakan coba lagi.';
 
-            // --- 8. Format Output ---
             $botReply = $this->formatReply($botReply);
 
             return response()->json([
-                'reply'  => $botReply,
-                'model'  => $usedModel,
-                'tokens' => $result['usageMetadata'] ?? null,
+                'reply'       => $botReply,
+                'model'       => $usedModel,
+                'tokens'      => $result['usageMetadata'] ?? null,
+                'db_context'  => !empty($konteksDb), // flag: apakah ada data DB yang digunakan
             ]);
 
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            Log::error('Gemini Connection Timeout', ['error' => $e->getMessage()]);
-            return response()->json([
-                'reply' => '⏱️ Koneksi ke server AI timeout. Periksa koneksi internet server Anda dan coba lagi.'
-            ], 503);
+            Log::error('Gemini Timeout', ['error' => $e->getMessage()]);
+            return response()->json(['reply' => '⏱️ Koneksi timeout. Coba lagi.'], 503);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
@@ -182,34 +184,42 @@ PROMPT;
             ], 422);
 
         } catch (\Exception $e) {
-            Log::error('Chatbot Unexpected Error', ['error' => $e->getMessage()]);
-            return response()->json([
-                'reply' => '❌ Terjadi kesalahan sistem. Silakan coba lagi.'
-            ], 500);
+            Log::error('Chatbot Error', ['error' => $e->getMessage()]);
+            return response()->json(['reply' => '❌ Terjadi kesalahan sistem.'], 500);
         }
     }
 
     // =========================================================
-    // HELPER: Format balasan Markdown -> HTML
+    // ENDPOINT BONUS: Query database langsung via MCP
+    // (opsional, bisa dipanggil dari admin panel)
+    // =========================================================
+    public function queryDb(Request $request)
+    {
+        $request->validate(['sql' => 'required|string|max:1000']);
+
+        // Keamanan: hanya izinkan SELECT
+        $sql = trim($request->input('sql'));
+        if (!str_starts_with(strtoupper($sql), 'SELECT')) {
+            return response()->json(['error' => 'Hanya query SELECT yang diizinkan.'], 403);
+        }
+
+        $mcp    = new McpService();
+        $result = $mcp->query($sql);
+
+        return response()->json($result);
+    }
+
+    // =========================================================
+    // HELPER: Format Markdown -> HTML
     // =========================================================
     private function formatReply(string $text): string
     {
-        // Bold: **teks** -> <b>teks</b>
         $text = preg_replace('/\*\*(.*?)\*\*/s', '<b>$1</b>', $text);
-
-        // Italic: *teks* -> <i>teks</i>
         $text = preg_replace('/\*(.*?)\*/s', '<i>$1</i>', $text);
-
-        // Heading: ### -> <strong> dengan ukuran lebih besar
         $text = preg_replace('/^###\s(.+)$/m', '<strong style="font-size:1.05em">$1</strong>', $text);
         $text = preg_replace('/^##\s(.+)$/m',  '<strong style="font-size:1.1em">$1</strong>', $text);
-
-        // List item: - item -> • item
         $text = preg_replace('/^-\s(.+)$/m', '• $1', $text);
-
-        // Newline -> <br>
         $text = nl2br($text);
-
         return trim($text);
     }
 }
