@@ -17,102 +17,88 @@ class SensorDynamicController extends Controller
     // POST /api/sensors/data
     public function store(Request $request)
     {
-        // 1. Validasi bahwa input adalah array
-        $dataArray = $request->all();
+        $validated = $request->validate([
+            'sensor_id'       => 'required|string',
+            'desibel'         => 'nullable|numeric',
+            'decibel'         => 'nullable|numeric',
+            'battery_percent' => 'required|integer',
+            'timestamp'       => 'required|date',
+        ]);
 
-        // Jika input bukan array (hanya satu data), bungkus jadi array agar loop tetap jalan
-        if (!isset($dataArray[0])) {
-            $dataArray = [$dataArray];
+        $sensorId = $validated['sensor_id'];
+
+        // OPSI A: TOLAK DATA RUSAK (Disarankan)
+        if (!str_starts_with($sensorId, 'ESP32_')) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Invalid Sensor ID Format (Corrupted Data)',
+            ], 422);
         }
 
-        $responses = [];
+        $tableName = strtolower($sensorId) . '_data';
 
-        foreach ($dataArray as $data) {
-            // 2. Validasi tiap item dalam array
-            $validator = Validator::make($data, [
-                'sensor_id'       => 'required|string',
-                'desibel'         => 'nullable|numeric',
-                'decibel'         => 'nullable|numeric',
-                'battery_percent' => 'required|integer',
-                'timestamp'       => 'required|date',
-                'received_at'     => 'nullable|string',
+        // Normalisasi: simpan ke kolom 'decibel' di DB
+        $decibel = $validated['desibel'] ?? $validated['decibel'] ?? null;
+
+        if ($decibel === null) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'desibel/decibel is required',
+            ], 422);
+        }
+
+        // Daftar sensor
+        if (!DB::table('sensor_list')->where('sensor_id', $sensorId)->exists()) {
+            DB::table('sensor_list')->insert([
+                'sensor_id'  => $sensorId,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
+        }
 
-            if ($validator->fails()) {
-                $responses[] = ['status' => 'error', 'message' => 'Validation failed', 'errors' => $validator->errors()];
-                continue;
-            }
+        // Tabel dinamis
+        if (!Schema::hasTable($tableName)) {
+            Schema::create($tableName, function (Blueprint $table) {
+                $table->id();
+                $table->float('decibel');
+                $table->integer('battery_percent');
+                $table->timestamp('timestamp');
+                $table->timestamps();
+            });
+        }
 
-            $validated = $validator->validated();
-            $sensorId = $validated['sensor_id'];
+        try {
+            DB::table($tableName)->insert([
+                'decibel'         => $decibel,
+                'battery_percent' => $validated['battery_percent'],
+                'timestamp'       => $validated['timestamp'],
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Failed to insert data: ' . $e->getMessage(),
+            ], 500);
+        }
 
-            // Cek format Sensor ID
-            if (!str_starts_with($sensorId, 'ESP32_')) {
-                $responses[] = ['sensor_id' => $sensorId, 'status' => 'error', 'message' => 'Invalid Format'];
-                continue;
-            }
+        // Kirim notifikasi jika decibel > 55
+        if ($decibel > 55) {
+            $message = "🚨 Aktivitas mencurigakan!\n"
+                . "Sensor: {$sensorId}\n"
+                . "Decibel: {$decibel}\n"
+                . "Waktu: "
+                . Carbon::parse($validated['timestamp'])->format('d-m-Y H:i:s')
+                . "\n"
+                . "Baterai: {$validated['battery_percent']}%";
 
-            $tableName = strtolower($sensorId) . '_data';
-            $decibel = $validated['desibel'] ?? $validated['decibel'] ?? null;
-
-            if ($decibel === null) {
-                $responses[] = ['sensor_id' => $sensorId, 'status' => 'error', 'message' => 'desibel/decibel is required'];
-                continue;
-            }
-
-            // 3. Logika DB (Daftar Sensor & Tabel Dinamis)
-            if (!DB::table('sensor_list')->where('sensor_id', $sensorId)->exists()) {
-                DB::table('sensor_list')->insert([
-                    'sensor_id'  => $sensorId,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
-
-            if (!Schema::hasTable($tableName)) {
-                Schema::create($tableName, function (Blueprint $table) {
-                    $table->id();
-                    $table->float('decibel');
-                    $table->integer('battery_percent');
-                    $table->timestamp('timestamp');
-                    $table->timestamp('received_at', 6)->nullable();
-                    $table->timestamps();
-                });
-            }
-
-            // 4. Insert Data
-            try {
-                DB::table($tableName)->insert([
-                    'decibel'         => $decibel,
-                    'battery_percent' => $validated['battery_percent'],
-                    'timestamp'       => $validated['timestamp'],
-                    'received_at'     => $data['received_at'] ?? now()->format('Y-m-d H:i:s.u'),
-                    'created_at'      => now(),
-                    'updated_at'      => now(),
-                ]);
-
-                // 5. Logika Notifikasi & TDOA
-                if ($decibel > 55) {
-                    $message = "🚨 Aktivitas mencurigakan!\n"
-                        . "Sensor: {$sensorId}\n"
-                        . "Decibel: {$decibel}\n"
-                        . "Waktu: " . \Carbon\Carbon::parse($validated['timestamp'])->format('d-m-Y H:i:s')
-                        . "\nBaterai: {$validated['battery_percent']}%";
-
-                    TelegramHelper::sendMessage($message);
-                    TDOAService::tryCalculate($sensorId);
-                }
-
-                $responses[] = ['sensor_id' => $sensorId, 'status' => 'success'];
-
-            } catch (\Exception $e) {
-                $responses[] = ['sensor_id' => $sensorId, 'status' => 'error', 'message' => $e->getMessage()];
-            }
+            TelegramHelper::sendMessage($message);
+            TDOAService::tryCalculate($sensorId);
         }
 
         return response()->json([
-            'status'  => 'completed',
-            'results' => $responses
+            'status'  => 'success',
+            'message' => "Data inserted into {$tableName}",
         ]);
     }
 

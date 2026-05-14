@@ -32,6 +32,11 @@ Route::prefix('sensors')->group(function () {
     //    Method: GET, Function: history() -> return ['grafik' => ...]
     Route::get('/history', [SensorDynamicController::class, 'history']);
 
+    // ===== Route BARU untuk TDOA =====
+    Route::post('/positions',   [SensorDynamicController::class, 'storePosition']);
+    Route::get('/positions',    [SensorDynamicController::class, 'getPositions']);
+    Route::get('/tdoa/events',  [SensorDynamicController::class, 'tdoaEvents']);
+    Route::get('/tdoa/latest',  [SensorDynamicController::class, 'tdoaLatest']);
     // 5. API List Sensor (Untuk Dropdown Metadata)
     //    Karena di controller tidak ada function 'list', kita pakai Closure di sini saja
     //    supaya tidak perlu mengotak-atik controller.
