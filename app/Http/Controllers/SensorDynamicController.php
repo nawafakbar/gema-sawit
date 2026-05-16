@@ -93,13 +93,6 @@ class SensorDynamicController extends Controller
 
                 // 5. Logika Notifikasi & TDOA
                 if ($decibel > 55) {
-                    $message = "🚨 Aktivitas mencurigakan!\n"
-                        . "Sensor: {$sensorId}\n"
-                        . "Decibel: {$decibel}\n"
-                        . "Waktu: " . \Carbon\Carbon::parse($validated['timestamp'])->format('d-m-Y H:i:s')
-                        . "\nBaterai: {$validated['battery_percent']}%";
-
-                    TelegramHelper::sendMessage($message);
                     TDOAService::tryCalculate($sensorId);
                 }
 

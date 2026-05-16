@@ -36,8 +36,7 @@ class TDOAService
 
             $latest = DB::table($tableName)
                 ->where('decibel', '>', self::DECIBEL_THRESHOLD)
-                ->where('received_at', '>=', $windowStart) // ✅ pakai received_at
-                ->orderBy('received_at', 'desc')
+                ->orderBy('id', 'desc')
                 ->first();
 
             if ($latest) {
