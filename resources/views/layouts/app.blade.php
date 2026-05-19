@@ -323,6 +323,15 @@
                 icon.classList.replace('ph-x', 'ph-list');
             }
         }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+
+            // Toggle class untuk memunculkan/menyembunyikan sidebar dan overlay
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
