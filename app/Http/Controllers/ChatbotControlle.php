@@ -116,12 +116,30 @@ PROMPT;
                 ];
             }
 
-            $contents = [
-                [
-                    'role'  => 'user',
-                    'parts' => $parts,
-                ]
+            // ✅ BARU
+            $history  = json_decode($request->input('history', '[]'), true);
+            $contents = [];
+
+            // Masukkan history percakapan sebelumnya
+            foreach ($history as $chat) {
+                $contents[] = [
+                    'role'  => $chat['role'] === 'user' ? 'user' : 'model',
+                    'parts' => [['text' => $chat['content'] ?? '']],
+                ];
+            }
+
+            // Tambah pesan sekarang (dengan gambar kalau ada)
+            $contents[] = [
+                'role'  => 'user',
+                'parts' => $parts,
             ];
+
+            // $contents = [
+            //     [
+            //         'role'  => 'user',
+            //         'parts' => $parts,
+            //     ]
+            // ];
 
             $payload = [
                 'contents'         => $contents,
