@@ -837,7 +837,6 @@
         const messagesArea = document.getElementById('chatMessages');
         const sendBtn = document.getElementById('sendBtn');
         let chatHistory = [];
-        const limitedHistory = chatHistory.slice(-10);
 
         function toggleChat() {
             if (chatWindow.classList.contains('hidden')) {
@@ -911,7 +910,7 @@
             formData.append('message', message);
             if (image) formData.append('image', image);
             formData.append('_token', '{{ csrf_token() }}');
-            formData.append('history', JSON.stringify(limitedHistory));
+            formData.append('history', JSON.stringify(chatHistory.slice(-10)));
 
             try {
                 const response = await fetch('{{ route("chatai") }}', {
