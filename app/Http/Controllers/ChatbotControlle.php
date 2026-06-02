@@ -116,7 +116,6 @@ PROMPT;
                 ];
             }
 
-            // ✅ BARU
             $history  = json_decode($request->input('history', '[]'), true);
             $contents = [];
 

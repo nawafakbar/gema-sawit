@@ -208,6 +208,7 @@
         const chatWindow = document.getElementById('chatWindow');
         const messagesArea = document.getElementById('chatMessages');
         const sendBtn = document.getElementById('sendBtn');
+        let chatHistory = [];
 
         function toggleChat() {
             if (chatWindow.classList.contains('hidden')) {
@@ -281,6 +282,7 @@
             formData.append('message', message);
             if (image) formData.append('image', image);
             formData.append('_token', '{{ csrf_token() }}');
+            formData.append('history', JSON.stringify(chatHistory.slice(-10)));s
 
             try {
                 const response = await fetch('{{ route("chatai") }}', {
@@ -289,6 +291,8 @@
                 });
                 const data = await response.json();
                 document.getElementById(loadingId).remove();
+                chatHistory.push({ role: 'user',      content: message });
+                chatHistory.push({ role: 'assistant', content: data.reply });
 
                 const botHtml = `
                     <div class="flex gap-4 items-end animate-fade-in">
