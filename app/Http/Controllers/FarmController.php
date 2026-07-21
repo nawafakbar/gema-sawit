@@ -14,42 +14,34 @@ class FarmController extends Controller
     // --- 1. DASHBOARD ---
 
     public function dashboard(Request $request) {
-        // --- 1. DATA KARTU STATISTIK (Sama seperti sebelumnya) ---
         $jadwal_pending = Schedule::where('status', 'pending')->count();
         $last_activity = ActivityLog::latest('date')->first();
         $status_lahan = $last_activity && $last_activity->date >= now()->subDays(7) ? 'Terawat' : 'Perlu Perhatian';
 
-        // --- 2. DATA GRAFIK PANEN (Tahunan) ---
         $selectedYear = $request->input('year', date('Y'));
         
-        // AMBIL TAHUN DARI DB
         $dbYears = Harvest::selectRaw('YEAR(date) as year')
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year')
             ->toArray();
 
-        // TRIK: Gabungkan tahun dari DB dengan 3 tahun terakhir manual
-        // Jadi minimal akan muncul [2025, 2024, 2023] walaupun DB kosong
-        $manualYears = range(date('Y'), date('Y') - 2); 
+        $manualYears = range(date('Y'), date('Y') - 5); 
         $availableYears = array_values(array_unique(array_merge($dbYears, $manualYears)));
         
-        // Sortir lagi biar rapi (Terbesar ke Terkecil)
         rsort($availableYears);
 
-        // Query Data (Sama seperti punya mu)
         $monthlyData = Harvest::selectRaw('MONTH(date) as month, SUM(weight_kg) as total')
             ->whereYear('date', $selectedYear)
             ->groupBy('month')
             ->orderBy('month')
             ->pluck('total', 'month');
 
-        // Normalisasi Data (Isi bulan kosong dengan 0) agar grafik tidak bolong
         $chartData = [];
         for ($i = 1; $i <= 12; $i++) {
             $chartData[] = $monthlyData[$i] ?? 0;
         }
-        $total_panen_tahun_ini = array_sum($chartData); // Total setahun
+        $total_panen_tahun_ini = array_sum($chartData);
 
         return view('pages.dashboard', compact(
             'jadwal_pending', 
@@ -63,7 +55,7 @@ class FarmController extends Controller
 
     // --- 2. BUKU SAKU (GUIDES) ---
     public function guides() {
-        $guides = Guide::all(); // Nanti bisa diisi via seeder/database manual
+        $guides = Guide::all(); 
         return view('pages.guides', compact('guides'));
     }
 
@@ -75,12 +67,10 @@ class FarmController extends Controller
 
     // --- 3. JADWAL (SCHEDULES) ---
     public function schedules() {
-        // Urutkan jadwal: yang pending di atas, lalu berdasarkan tanggal
         $schedules = Schedule::orderBy('status', 'desc')->orderBy('date', 'asc')->get();
         return view('pages.schedules', compact('schedules'));
     }
 
-    // Fitur: Tandai Selesai (Update Status)
     public function completeSchedule($id) {
         $schedule = Schedule::findOrFail($id);
         $schedule->update(['status' => 'done']);

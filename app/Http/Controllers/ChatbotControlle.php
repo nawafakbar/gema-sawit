@@ -9,9 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class ChatbotControlle extends Controller
 {
-    // =========================================================
-    // KONFIGURASI MODEL
-    // =========================================================
+    // model
     private array $models = [
         'gemini-3.1-flash-lite',
         'gemini-2.5-flash-lite',
@@ -22,9 +20,7 @@ class ChatbotControlle extends Controller
     private float  $temperature = 0.7;
     private int    $timeoutSec  = 60;
 
-    // =========================================================
-    // SYSTEM PROMPT — Kepribadian Dr. Sawit
-    // =========================================================
+    // system prompt
     private string $systemPrompt = <<<PROMPT
 Kamu adalah Dr. Sawit, pakar agronomi senior dengan pengalaman lebih dari 20 tahun di bidang perkebunan kelapa sawit Indonesia.
 
@@ -53,9 +49,7 @@ Batasan:
 - Jika ditanya di luar topik, arahkan kembali dengan ramah
 PROMPT;
 
-    // =========================================================
-    // ENDPOINT UTAMA: Chat
-    // =========================================================
+    // end prompt
     public function chat(Request $request)
     {
         // --- 1. Validasi Input ---
@@ -206,10 +200,7 @@ PROMPT;
         }
     }
 
-    // =========================================================
-    // ENDPOINT BONUS: Query database langsung via MCP
-    // (opsional, bisa dipanggil dari admin panel)
-    // =========================================================
+    
     public function queryDb(Request $request)
     {
         $request->validate(['sql' => 'required|string|max:1000']);
@@ -226,9 +217,7 @@ PROMPT;
         return response()->json($result);
     }
 
-    // =========================================================
-    // HELPER: Format Markdown -> HTML
-    // =========================================================
+    //helper
     private function formatReply(string $text): string
     {
         $text = preg_replace('/\*\*(.*?)\*\*/s', '<b>$1</b>', $text);
