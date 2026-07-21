@@ -54,7 +54,7 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     });
 
     // Chatbot AI
-    Route::post('/chat-ai', [ChatbotControlle::class, 'chat'])->name('chatai');
+    Route::post('/chatai', [ChatbotControlle::class, 'chat'])->name('chatai');
 
     // Halaman Monitoring IoT
     Route::get('/monitoring', function () {
