@@ -26,7 +26,7 @@ class FarmController extends Controller
             ->pluck('year')
             ->toArray();
 
-        $manualYears = range(date('Y'), date('Y') - 5); 
+        $manualYears = range(date('Y'), date('Y') - 3); 
         $availableYears = array_values(array_unique(array_merge($dbYears, $manualYears)));
         
         rsort($availableYears);
